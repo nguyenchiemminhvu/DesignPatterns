@@ -8,9 +8,9 @@
 
 namespace AbstractFactory
 {
-	void Perform()
+	void Perform_1()
 	{
-		Factory * factory = NULL;
+		ComputerFactory * factory = NULL;
 #ifdef __DELL__
 		factory = new DellFactory();
 #elif __ASUS__
@@ -19,11 +19,11 @@ namespace AbstractFactory
 		factory = new AppleFactory();
 #endif
 
-		std::vector<Product *> products;
+		std::vector<ComputerProduct *> products;
 
 		for (int i = 0; i < 10; i++)
 		{
-			Product * product = factory->CreateLaptopProduct("MACBOOK");
+			ComputerProduct * product = factory->CreateLaptopProduct("MACBOOK");
 			if (product)
 				products.push_back(product);
 		}
@@ -31,6 +31,50 @@ namespace AbstractFactory
 		for (int i = 0; i < products.size(); i++)
 		{
 			std::cout << products[i]->GetProductName() << std::endl;
+		}
+
+		for (int i = 0; i < products.size(); i++)
+		{
+			delete products[i];
+			products[i] = NULL;
+		}
+	}
+
+	void Perform_2()
+	{
+		FurnitureFactory * factory = NULL;
+#ifdef __MODERN__
+		factory = new ModernFurnitureFactory();
+#else
+		factory = new ClassicalFurnitureFactory();
+#endif
+
+		std::vector<FurnitureProduct *> products;
+
+		for (int i = 0; i < 10; i++)
+		{
+			FurnitureProduct * product = NULL;
+			if (i & 1)
+			{
+				product = factory->CreateChair();
+			}
+			else
+			{
+				product = factory->CreateTable();
+			}
+
+			products.push_back(product);
+		}
+
+		for (int i = 0; i < 10; i++)
+		{
+			std::cout << products[i]->GetType() << std::endl;
+		}
+
+		for (int i = 0; i < 10; i++)
+		{
+			delete products[i];
+			products[i] = NULL;
 		}
 	}
 }

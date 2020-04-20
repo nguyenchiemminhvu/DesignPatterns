@@ -2,22 +2,22 @@
 
 namespace AbstractFactory
 {
-	int Product::__TOTAL = 0;
+	int ComputerProduct::__TOTAL = 0;
 
-	Product::Product(std::string manu, std::string type, std::string name)
+	ComputerProduct::ComputerProduct(std::string manu, std::string type, std::string name)
 		: __pManu(manu)
 		, __pType(type)
 		, __pName(name)
 	{
-		__ID = Product::__TOTAL++;
+		__ID = ComputerProduct::__TOTAL++;
 	}
 
-	Product::~Product(void)
+	ComputerProduct::~ComputerProduct(void)
 	{
 
 	}
 
-	std::string Product::GetProductName()
+	std::string ComputerProduct::GetProductName()
 	{
 		std::string sID;
 		int id = __ID;
@@ -34,7 +34,7 @@ namespace AbstractFactory
 	}
 
 	Laptop::Laptop(std::string manu, std::string name)
-		: Product(manu, "Laptop", name)
+		: ComputerProduct(manu, "Laptop", name)
 	{
 
 	}
@@ -45,7 +45,7 @@ namespace AbstractFactory
 	}
 
 	Desktop::Desktop(std::string manu, std::string name)
-		: Product(manu, "Desktop", name)
+		: ComputerProduct(manu, "Desktop", name)
 	{
 
 	}
@@ -56,7 +56,7 @@ namespace AbstractFactory
 	}
 
 	Tablet::Tablet(std::string manu, std::string name)
-		: Product(manu, "Tablet", name)
+		: ComputerProduct(manu, "Tablet", name)
 	{
 
 	}
@@ -64,5 +64,89 @@ namespace AbstractFactory
 	Tablet::~Tablet()
 	{
 
+	}
+
+	////////////////////////////////////////////////////////////
+
+	FurnitureProduct::FurnitureProduct()
+	{
+	}
+
+	FurnitureProduct::~FurnitureProduct()
+	{
+	}
+
+	Chair::Chair()
+		: FurnitureProduct()
+	{
+	}
+
+	Chair::~Chair()
+	{
+	}
+
+	ClassicalChair::ClassicalChair()
+		: Chair()
+	{
+	}
+
+	ClassicalChair::~ClassicalChair()
+	{
+	}
+
+	std::string ClassicalChair::GetType()
+	{
+		return "ClassicalChair";
+	}
+
+	ModernChair::ModernChair()
+		: Chair()
+	{
+	}
+
+	ModernChair::~ModernChair()
+	{
+	}
+
+	std::string ModernChair::GetType()
+	{
+		return "ModernChair";
+	}
+
+	Table::Table()
+		: FurnitureProduct()
+	{
+	}
+
+	Table::~Table()
+	{
+	}
+	
+	ClassicalTable::ClassicalTable()
+		: Table()
+	{
+	}
+
+	ClassicalTable::~ClassicalTable()
+	{
+	}
+
+	std::string ClassicalTable::GetType()
+	{
+		return "ClassicalTable";
+	}
+
+	ModernTable::ModernTable()
+		: Table()
+	{
+	}
+
+	ModernTable::~ModernTable()
+	{
+	}
+
+	std::string ModernTable::GetType()
+	{
+		return "ModernTable";
 	}
 }

@@ -2,7 +2,8 @@
 
 int main()
 {
-	AbstractFactory::Perform();
+	AbstractFactory::Perform_1();
+	AbstractFactory::Perform_2();
 
 	return 0;
 }

@@ -2,5 +2,6 @@
 
 namespace AbstractFactory
 {
-	void Perform();
+	void Perform_1();
+	void Perform_2();
 }
