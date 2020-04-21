@@ -176,6 +176,10 @@
 			ReferencedProjectIdentifier="{6B841DCD-65BF-44CF-B644-80AE23736802}"
 			RelativePathToProject=".\CreationalPatterns\FactoryMethod\FactoryMethod.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{783FF372-40C2-4B83-BACF-94B506EA5A29}"
+			RelativePathToProject=".\CreationalPatterns\Builder\Builder.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
