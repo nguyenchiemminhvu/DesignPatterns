@@ -180,6 +180,10 @@
 			ReferencedProjectIdentifier="{783FF372-40C2-4B83-BACF-94B506EA5A29}"
 			RelativePathToProject=".\CreationalPatterns\Builder\Builder.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{275FBD41-F5E1-41F3-837E-3621D828FB9F}"
+			RelativePathToProject=".\CreationalPatterns\Singleton\Singleton.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter

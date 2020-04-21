@@ -1,5 +1,7 @@
 #include "Builder.h"
 
+#include <iostream>
+
 namespace Builder
 {
 	GameCharacterBuilder::GameCharacterBuilder()
@@ -67,6 +69,15 @@ namespace Builder
 			pot.stamina = 50;
 			break;
 		}
+		SetPotiential(c, pot);
+
+		std::cout	<< "Made a player: " 
+					<< c->weapon << " " 
+					<< c->armor << " " 
+					<< c->potiential.health << " " 
+					<< c->potiential.speed << " " 
+					<< c->potiential.stamina 
+					<< std::endl;
 	}
 
 	NPCBuilder::NPCBuilder()
@@ -91,6 +102,14 @@ namespace Builder
 		pot.speed = 1.0;
 		pot.stamina = 50;
 		SetPotiential(c, pot);
+
+		std::cout	<< "Made a NPC: " 
+					<< c->weapon << " " 
+					<< c->armor << " " 
+					<< c->potiential.health << " " 
+					<< c->potiential.speed << " " 
+					<< c->potiential.stamina 
+					<< std::endl;
 	}
 
 	GameObjectManager::GameObjectManager()
