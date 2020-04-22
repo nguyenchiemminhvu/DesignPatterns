@@ -184,6 +184,10 @@
 			ReferencedProjectIdentifier="{275FBD41-F5E1-41F3-837E-3621D828FB9F}"
 			RelativePathToProject=".\CreationalPatterns\Singleton\Singleton.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{699E1D13-FF2F-4CC5-B609-7FF3A048AE94}"
+			RelativePathToProject=".\CreationalPatterns\Prototype\Prototype.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter

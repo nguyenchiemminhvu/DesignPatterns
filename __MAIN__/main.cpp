@@ -2,6 +2,7 @@
 #include "FactoryMethod/Example.h"
 #include "Builder/Example.h"
 #include "Singleton/Example.h"
+#include "Prototype/Example.h"
 
 int main()
 {
@@ -10,6 +11,7 @@ int main()
 	FactoryMethod::Perform();
 	Builder::Perform();
 	Singleton::Perform();
+	Prototype::Perform();
 
 	return 0;
 }
