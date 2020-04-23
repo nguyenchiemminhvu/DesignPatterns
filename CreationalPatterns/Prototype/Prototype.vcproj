@@ -165,6 +165,14 @@
 				RelativePath=".\Example.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\Factory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Product.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -173,6 +181,14 @@
 			>
 			<File
 				RelativePath=".\Example.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Factory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Product.h"
 				>
 			</File>
 		</Filter>
