@@ -12,6 +12,5 @@ namespace Prototype
 		p->Debug();
 
 		delete factory;
-		delete p;
 	}
 }

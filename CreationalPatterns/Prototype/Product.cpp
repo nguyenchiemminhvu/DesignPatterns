@@ -2,7 +2,16 @@
 
 namespace Prototype
 {
+	Profile::Profile()
+	{
+	}
+
+	Profile::~Profile()
+	{
+	}
+
 	ProfileLow::ProfileLow()
+		: Profile()
 	{
 		profile_name = "Profile Low";
 		created_date = "2020/04/23";
@@ -25,6 +34,7 @@ namespace Prototype
 	}
 
 	ProfileMedium::ProfileMedium()
+		: Profile()
 	{
 		profile_name = "Profile Medium";
 		created_date = "2020/04/23";
@@ -47,6 +57,7 @@ namespace Prototype
 	}
 
 	ProfileHigh::ProfileHigh()
+		: Profile()
 	{
 		profile_name = "Profile HIGH";
 		created_date = "2020/04/23";

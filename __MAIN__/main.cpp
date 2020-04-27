@@ -3,6 +3,7 @@
 #include "Builder/Example.h"
 #include "Singleton/Example.h"
 #include "Prototype/Example.h"
+#include "Adapter/Example.h"
 
 int main()
 {
@@ -12,6 +13,7 @@ int main()
 	Builder::Perform();
 	Singleton::Perform();
 	Prototype::Perform();
+	Adapter::Perform();
 
 	return 0;
 }

@@ -9,8 +9,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FactoryMethod", "Creational
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "__MAIN__", "__MAIN__\__MAIN__.vcproj", "{84E91ECF-7383-46FB-80C3-91025D77EE11}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ObjectPool", "CreationalPatterns\ObjectPool\ObjectPool.vcproj", "{DC1C347D-ADCD-4103-B6FC-36AA66D49E00}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Prototype", "CreationalPatterns\Prototype\Prototype.vcproj", "{699E1D13-FF2F-4CC5-B609-7FF3A048AE94}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Singleton", "CreationalPatterns\Singleton\Singleton.vcproj", "{275FBD41-F5E1-41F3-837E-3621D828FB9F}"
@@ -77,10 +75,6 @@ Global
 		{84E91ECF-7383-46FB-80C3-91025D77EE11}.Debug|Win32.Build.0 = Debug|Win32
 		{84E91ECF-7383-46FB-80C3-91025D77EE11}.Release|Win32.ActiveCfg = Release|Win32
 		{84E91ECF-7383-46FB-80C3-91025D77EE11}.Release|Win32.Build.0 = Release|Win32
-		{DC1C347D-ADCD-4103-B6FC-36AA66D49E00}.Debug|Win32.ActiveCfg = Debug|Win32
-		{DC1C347D-ADCD-4103-B6FC-36AA66D49E00}.Debug|Win32.Build.0 = Debug|Win32
-		{DC1C347D-ADCD-4103-B6FC-36AA66D49E00}.Release|Win32.ActiveCfg = Release|Win32
-		{DC1C347D-ADCD-4103-B6FC-36AA66D49E00}.Release|Win32.Build.0 = Release|Win32
 		{699E1D13-FF2F-4CC5-B609-7FF3A048AE94}.Debug|Win32.ActiveCfg = Debug|Win32
 		{699E1D13-FF2F-4CC5-B609-7FF3A048AE94}.Debug|Win32.Build.0 = Debug|Win32
 		{699E1D13-FF2F-4CC5-B609-7FF3A048AE94}.Release|Win32.ActiveCfg = Release|Win32

@@ -22,6 +22,8 @@ namespace Prototype
 		std::string ram;
 
 	public:
+		Profile();
+		virtual ~Profile();
 		virtual Profile * clone() = 0;
 
 		virtual void Debug()
