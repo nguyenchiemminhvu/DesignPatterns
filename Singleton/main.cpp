@@ -6,9 +6,6 @@ class Database : public Singleton<Database>
 public:
     void Connect();
     void Disconnect();
-
-private:
-    friend class Singleton<Database>;
 };
 
 void Database::Connect()
