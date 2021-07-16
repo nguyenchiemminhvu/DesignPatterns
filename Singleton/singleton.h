@@ -23,12 +23,15 @@ pthread_mutex_t Singleton<T>::s_locker;
 template <class T>
 T * Singleton<T>::GetInstance()
 {
-    pthread_mutex_lock(&s_locker);
     if (s_instance == nullptr)
     {
-        s_instance = new T();
+        pthread_mutex_lock(&s_locker);
+        if (s_instance == nullptr)
+        {
+            s_instance = new T();
+        }
+        pthread_mutex_unlock(&s_locker);
     }
-    pthread_mutex_unlock(&s_locker);
 
     return s_instance;
 }
