@@ -147,6 +147,7 @@ public:
 		r->client = this;
 		pSys->add_request(r);
 		status = this->GetResult<int>(r);
+		delete r;
 		
 		return status;
 	}
