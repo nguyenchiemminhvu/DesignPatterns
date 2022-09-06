@@ -159,7 +159,7 @@ private:
  * This file is created by the PIC of LegacyModule
  * to enable the UpgradedModule to access the System
  * without public the source code of the System
- **/
+ */
 class Adapter
 {
 public:
@@ -171,6 +171,11 @@ private:
 	LegacyModule* module;
 };
 
+/**
+ * Adapter.cpp source code file 
+ * Its implementation is hidden inside the shared object (.so),
+ * The PIC of UpgradedModule can only see the interface of Adapter by Adapter.h header file.
+ */
 Adapter::Adapter(LegacyModule* lm) 
 {
 	module = lm;
