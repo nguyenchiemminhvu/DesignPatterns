@@ -166,7 +166,7 @@ class Adapter
 public:
 	Adapter(LegacyModule* lm);
 	virtual ~Adapter();
-	int OnDoRequest();
+	int GetSystemStatus();
 
 private:
 	LegacyModule* module;
@@ -183,7 +183,7 @@ Adapter::Adapter(LegacyModule* lm)
 }
 Adapter::~Adapter() {}
 
-int Adapter::OnDoRequest()
+int Adapter::GetSystemStatus()
 {
 	printf("%s\n", __func__);
 	if (module != nullptr)
@@ -209,7 +209,7 @@ public:
 		int status = 0;
 		if (adap)
 		{
-			status = adap->OnDoRequest();
+			status = adap->GetSystemStatus();
 		}
 
 		if (status == 0)
