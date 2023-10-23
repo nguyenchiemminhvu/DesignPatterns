@@ -94,38 +94,11 @@ public:
     {
         if (p_locmgr != nullptr)
         {
-<<<<<<< HEAD
             p_locmgr->storeLocation();
         }
     }
 };
 
-=======
-            p_locmgr->updateLocation(m_data);
-        }
-    }
-private:
-    std::shared_ptr<LocationData> m_data;
-};
-
-class StoreLocationCommand : public Command
-{
-public:
-    StoreLocationCommand(std::shared_ptr<LocationManager> locmgr)
-        : Command(locmgr)
-    {
-    }
-
-    virtual void execute() override
-    {
-        if (p_locmgr != nullptr)
-        {
-            p_locmgr->storeLocation();
-        }
-    }
-};
-
->>>>>>> 9c94dbcfffde70ae6ad4ee91f5b74a85bc6fa7a0
 class ReloadLocationCommand : public Command
 {
 public:
