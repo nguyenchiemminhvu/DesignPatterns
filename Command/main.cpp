@@ -1,3 +1,61 @@
+/*
+@startuml
+class LocationData {
+    - lat: double
+    - lon: double
+    - alt: double
+    - timestamp: int64_t
+}
+
+class LocationManager {
+    - m_data: std::shared_ptr<LocationData>
+    + LocationManager()
+    + ~LocationManager()
+    + updateLocation(data: std::shared_ptr<LocationData>&): void
+    + storeLocation(): void
+    + reloadLocation(): void
+}
+
+abstract class Command {
+    - p_locmgr: std::shared_ptr<LocationManager>
+    + Command(locmgr: std::shared_ptr<LocationManager>)
+    + execute(): void
+}
+
+class UpdateLocationCommand {
+    - m_data: std::shared_ptr<LocationData>
+    + UpdateLocationCommand(locmgr: std::shared_ptr<LocationManager>, loc_data: std::shared_ptr<LocationData>)
+    + execute(): void
+}
+
+class StoreLocationCommand {
+    + StoreLocationCommand(locmgr: std::shared_ptr<LocationManager>)
+    + execute(): void
+}
+
+class ReloadLocationCommand {
+    + ReloadLocationCommand(locmgr: std::shared_ptr<LocationManager>)
+    + execute(): void
+}
+
+class GnssReceiver {
+    - p_locmgr: std::shared_ptr<LocationManager>
+    + GnssReceiver()
+    + ~GnssReceiver()
+    + initialize(locmgr: LocationManager*): void
+    + start(): void
+    + stop(): void
+}
+
+Command <|-- UpdateLocationCommand
+Command <|-- StoreLocationCommand
+Command <|-- ReloadLocationCommand
+LocationData --* LocationManager
+GnssReceiver --> Command
+LocationManager <-- Command
+@enduml
+*/
+
 #include <iostream>
 #include <unistd.h>
 #include <string.h>
