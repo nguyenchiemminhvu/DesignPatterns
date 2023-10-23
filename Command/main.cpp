@@ -1,240 +1,185 @@
-#include <stdio.h>
+#include <iostream>
 #include <unistd.h>
 #include <string.h>
 #include <pthread.h>
-
+#include <unordered_map>
 #include <memory>
-#include <queue>
 
-enum REQUEST_ID
+struct LocationData
 {
-	GET_SYSTEM_STATUS,
-
-	REQUEST_ID_TOTAL
+    double lat;
+    double lon;
+    double alt;
+    int64_t timestamp;
 };
 
-class Client;
-struct Request
-{
-	REQUEST_ID id;
-	char buffer[1024];
-	Client* client;
-};
-
-class Client
+class LocationManager
 {
 public:
-	
-	Client() 
-	{
-		pthread_mutex_init(&res_lock, nullptr);
-	}
-	virtual ~Client() {}
+    LocationManager()
+    {
+        m_data = std::make_shared<LocationData>();
+    }
 
-	template<typename T>
-	T GetResult(Request* req)
-	{
-		printf("%s\n", __func__);
-		T res;
-		pthread_mutex_lock(&res_lock);
-		memcpy(&res, req->buffer, sizeof(T));
-		pthread_mutex_unlock(&res_lock);
-		return res;
-	}
+    ~LocationManager()
+    {
 
-	void WaitForResult()
-	{
-		printf("%s\n", __func__);
-		pthread_mutex_lock(&res_lock);
-	}
+    }
 
-	void NotifiedResult()
-	{
-		printf("%s\n", __func__);
-		pthread_mutex_unlock(&res_lock);
-	}
+    void updateLocation(std::shared_ptr<LocationData>& data)
+    {
+        m_data->lat = data->lat;
+        m_data->lon = data->lon;
+        m_data->alt = data->alt;
+        m_data->timestamp = data->timestamp;
 
+        std::cout << "Update location data: " << m_data->timestamp << " " << m_data->lat << " " << m_data->lon << " " << m_data->alt << std::endl;
+    }
+
+    void storeLocation()
+    {
+        std::cout << "Store location data to file" << std::endl;
+    }
+
+    void reloadLocation()
+    {
+        std::cout << "Reload location data from file" << std::endl;
+    }
 private:
-	pthread_mutex_t res_lock;
+    std::shared_ptr<LocationData> m_data;
 };
 
-class System
+enum COMMAND_ID
 {
-public:
-	System()
-		: status(0)
-	{
-		printf("System init\n");
-
-		pthread_mutex_init(&queue_lock, nullptr);
-
-		pthread_attr_t attr;
-		pthread_attr_init(&attr);
-		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-
-		pthread_t t; 
-		pthread_create(&t, &attr, &System::run, this);
-	}
-	virtual ~System() {}
-
-	void add_request(Request* r)
-	{
-		pthread_mutex_lock(&queue_lock);
-		message_queue.push(r);
-		r->client->WaitForResult();
-		pthread_mutex_unlock(&queue_lock);
-	}
-
-private:
-	static void* run(void* arg)
-	{
-		printf("%x: %s\n", pthread_self(), __func__);
-		System *pSys = (System*)arg;
-
-		pSys->status = 1;
-		while (true)
-		{
-			if (!pSys->message_queue.empty())
-			{
-				pthread_mutex_lock(&pSys->queue_lock);
-
-				Request *r = pSys->message_queue.front();
-				pSys->message_queue.pop();
-
-				switch (r->id)
-				{
-					case REQUEST_ID::GET_SYSTEM_STATUS:
-					{
-						memcpy(r->buffer, &pSys->status, sizeof(int));
-					}
-					default:
-					{
-						break;
-					}
-				}
-
-				r->client->NotifiedResult();
-				pthread_mutex_unlock(&pSys->queue_lock);
-			}
-
-			sleep(1);
-		}
-
-		return (void*)0;
-	}
-private:
-	int status; // 0: SUSPENDING 1: RUNNING
-
-	std::queue<Request*> message_queue;
-	pthread_mutex_t queue_lock;
+    UPDATE_LOCATION_COMMAND = 0,
+    STORE_LOCATION_COMMAND,
+    RELOAD_LOCATION_COMMAND
 };
 
-class LegacyModule : public Client
+class Command
 {
 public:
-	LegacyModule(std::shared_ptr<System> sys) 
-	{
-		pSys = sys;
-	}
-	virtual ~LegacyModule() {}
+    Command(std::shared_ptr<LocationManager> locmgr)
+    {
+        p_locmgr = locmgr;
+    }
+    virtual void execute() = 0;
 
-	int CheckSystemStatus()
-	{
-		int status;
-		
-		Request* r = new Request();
-		r->id = REQUEST_ID::GET_SYSTEM_STATUS;
-		r->client = this;
-		pSys->add_request(r);
-		status = this->GetResult<int>(r);
-		delete r;
-		
-		return status;
-	}
-private:
-	std::shared_ptr<System> pSys;
+protected:
+    std::shared_ptr<LocationManager> p_locmgr;
 };
 
-/**
- * Adapter.h header file
- * This file is created by the PIC of LegacyModule
- * to enable the UpgradedModule to access the System
- * without public the source code of the System
- */
-class Adapter
+class UpdateLocationCommand : public Command
 {
 public:
-	Adapter(LegacyModule* lm);
-	virtual ~Adapter();
-	int GetSystemStatus();
+    UpdateLocationCommand(std::shared_ptr<LocationManager> locmgr, std::shared_ptr<LocationData> loc_data)
+        : Command(locmgr)
+    {
+        m_data = std::make_shared<LocationData>(*loc_data);
+    }
 
+    virtual void execute() override
+    {
+        if (p_locmgr != nullptr)
+        {
+            p_locmgr->updateLocation(m_data);
+        }
+    }
 private:
-	LegacyModule* module;
+    std::shared_ptr<LocationData> m_data;
 };
 
-/**
- * Adapter.cpp source code file 
- * Its implementation is hidden inside the shared object (.so),
- * The PIC of UpgradedModule can only see the interface of Adapter by Adapter.h header file.
- */
-Adapter::Adapter(LegacyModule* lm) 
-{
-	module = lm;
-}
-Adapter::~Adapter() {}
-
-int Adapter::GetSystemStatus()
-{
-	printf("%s\n", __func__);
-	if (module != nullptr)
-	{
-		return module->CheckSystemStatus();
-	}
-
-	return 0;
-}
-
-class UpgradedModule
+class StoreLocationCommand : public Command
 {
 public:
-	UpgradedModule(LegacyModule* lm) 
-	{
-		adap = new Adapter(lm);
-	}
-	virtual ~UpgradedModule() {}
+    StoreLocationCommand(std::shared_ptr<LocationManager> locmgr)
+        : Command(locmgr)
+    {
+    }
 
-	void DoRequest()
-	{
-		printf("%s\n", __func__);
-		int status = 0;
-		if (adap)
-		{
-			status = adap->GetSystemStatus();
-		}
+    virtual void execute() override
+    {
+        if (p_locmgr != nullptr)
+        {
+            p_locmgr->storeLocation();
+        }
+    }
+};
 
-		if (status == 0)
-		{
-			return;
-		}
+class ReloadLocationCommand : public Command
+{
+public:
+    ReloadLocationCommand(std::shared_ptr<LocationManager> locmgr)
+        : Command(locmgr)
+    {
 
-		// Do something here
-		printf("System is running\n");
-	}
+    }
+
+    virtual void execute() override
+    {
+        if (p_locmgr != nullptr)
+        {
+            p_locmgr->reloadLocation();
+        }
+    }
+};
+
+class GnssReceiver
+{
+public:
+    GnssReceiver()
+    {
+        p_locmgr = nullptr;
+    }
+
+    ~GnssReceiver()
+    {
+    }
+
+    void initialize(LocationManager* locmgr)
+    {
+        if (locmgr != nullptr)
+        {
+            p_locmgr = std::shared_ptr<LocationManager>(locmgr);
+        }
+    }
+
+    void start()
+    {
+        std::shared_ptr<Command> cmd = std::make_shared<ReloadLocationCommand>(p_locmgr);
+        cmd->execute();
+
+        for (int i = 0; i < 10; i++)
+        {
+            std::shared_ptr<LocationData> data = std::make_shared<LocationData>();
+            data->lat = 18;
+            data->lon = 106;
+            data->alt = 0;
+            data->timestamp = i;
+            cmd = std::make_shared<UpdateLocationCommand>(p_locmgr, data);
+            cmd->execute();
+        }
+    }
+
+    void stop()
+    {
+        std::shared_ptr<Command> cmd = std::make_shared<StoreLocationCommand>(p_locmgr);
+        cmd->execute();
+    }
 
 private:
-	Adapter* adap;
+    std::shared_ptr<LocationManager> p_locmgr;
 };
 
 int main()
 {
-	std::shared_ptr<System> sys = std::make_shared<System>();
-	UpgradedModule module(new LegacyModule(sys));
+    LocationManager* locmgr = new LocationManager();
 
-	while (true)
-	{
-		module.DoRequest();
-		sleep(1);
-	}
+    GnssReceiver* receiver = new GnssReceiver();
+    receiver->initialize(locmgr);
+    
+    receiver->start();
+    receiver->stop();
 
-	return 0;
+    return 0;
 }
