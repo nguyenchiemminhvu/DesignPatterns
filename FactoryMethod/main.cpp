@@ -1,6 +1,6 @@
 #include <iostream>
 #include <unistd.h>
-#include <string.h>
+#include <cstring>
 #include <pthread.h>
 
 #include <memory>
@@ -17,183 +17,120 @@ struct LocationData
     int64_t timestamp;
 };
 
-class CommandPrototypeFactory;
+class ReceiverInterface;
+class ReceiverInterfaceFactory;
 class GnssReceiver
 {
 public:
     GnssReceiver();
     ~GnssReceiver();
-    void enableDebugMode();
-    void disableDebugMode();
-    bool getDebugMode();
+    bool initialize(int hardware_version);
+    void readLocationData();
     LocationData& getLocationData();
     void DEBUG();
-    int processCommand(const std::string& command);
 
 private:
-    CommandPrototypeFactory* cmdFactory;
-    bool m_debugMode;
     LocationData m_data;
+    ReceiverInterface* m_interface;
+    ReceiverInterfaceFactory* m_factory;
 };
 
-class CommandPrototype
+class ReceiverInterface
 {
 public:
-    explicit CommandPrototype()
-    {
-    }
- 
-    virtual std::shared_ptr<CommandPrototype> clone() const = 0;
-    virtual int execute(const std::vector<std::string>& args) = 0;
-    virtual ~CommandPrototype() = default;
+    virtual bool Open() = 0;
+    virtual int32_t Read(void* buffer) = 0;
+    virtual int32_t Write(void* buffer) = 0;
+protected:
+    int m_fd;
 };
- 
-class EnableDebugModeCommand : public CommandPrototype
+
+class UARTInterface : public ReceiverInterface
 {
 public:
-    explicit EnableDebugModeCommand(GnssReceiver* receiver)
-        : CommandPrototype()
+    virtual bool Open() override
     {
-        pReceiver = receiver;
-    }
- 
-    virtual std::shared_ptr<CommandPrototype> clone() const override
-    {
-        return std::make_shared<EnableDebugModeCommand>(*this);
+        return true;
     }
 
-    virtual int execute(const std::vector<std::string>& args) override
+    virtual int32_t Read(void* buffer) override
     {
-        if (pReceiver != nullptr)
-        {
-            pReceiver->enableDebugMode();
-        }
+        std::string temp = "18 106 0";
+        std::memcpy(buffer, temp.c_str(), temp.length());
+        return temp.length();
+    }
 
-        std::cout << "EnableDebugModeCommand executed" << std::endl;
+    virtual int32_t Write(void* buffer) override
+    {
         return 0;
     }
-private:
-    GnssReceiver* pReceiver;
 };
- 
-class DisableDebugModeCommand : public CommandPrototype
+
+class SOMEIPInterface : public ReceiverInterface
 {
 public:
-    explicit DisableDebugModeCommand(GnssReceiver* receiver)
-        : CommandPrototype()
+    virtual bool Open() override
     {
-        pReceiver = receiver;
-    }
- 
-    virtual std::shared_ptr<CommandPrototype> clone() const override
-    {
-        return std::make_shared<DisableDebugModeCommand>(*this);
+        return true;
     }
 
-    virtual int execute(const std::vector<std::string>& args) override
+    virtual int32_t Read(void* buffer) override
     {
-        if (pReceiver != nullptr)
-        {
-            pReceiver->disableDebugMode();
-        }
+        std::string temp = "18 106 0";
+        std::memcpy(buffer, temp.c_str(), temp.length());
+        return temp.length();
+    }
 
-        std::cout << "DisableDebugModeCommand executed" << std::endl;
+    virtual int32_t Write(void* buffer) override
+    {
         return 0;
     }
-private:
-    GnssReceiver* pReceiver;
-};
- 
-class InjectLatitudeCommand : public CommandPrototype
-{
-public:
-    explicit InjectLatitudeCommand(GnssReceiver* receiver)
-        : CommandPrototype()
-    {
-        pReceiver = receiver;
-    }
- 
-    virtual std::shared_ptr<CommandPrototype> clone() const override
-    {
-        return std::make_shared<InjectLatitudeCommand>(*this);
-    }
-
-    virtual int execute(const std::vector<std::string>& args) override
-    {
-        if (pReceiver != nullptr && pReceiver->getDebugMode())
-        {
-            LocationData& data = pReceiver->getLocationData();
-            data.lat = std::stoi(args[1]);
-        }
-
-        std::cout << "InjectLatitudeCommand executed" << std::endl;
-        return 0;
-    }
-private:
-    GnssReceiver* pReceiver;
-};
- 
-class InjectLongitudeCommand : public CommandPrototype
-{
-public:
-    explicit InjectLongitudeCommand(GnssReceiver* receiver)
-        : CommandPrototype()
-    {
-        pReceiver = receiver;
-    }
- 
-    virtual std::shared_ptr<CommandPrototype> clone() const override
-    {
-        return std::make_shared<InjectLongitudeCommand>(*this);
-    }
-
-    virtual int execute(const std::vector<std::string>& args) override
-    {
-        if (pReceiver != nullptr && pReceiver->getDebugMode())
-        {
-            LocationData& data = pReceiver->getLocationData();
-            data.lon = std::stoi(args[1]);
-        }
-        std::cout << "InjectLongitudeCommand executed" << std::endl;
-        return 0;
-    }
-private:
-    GnssReceiver* pReceiver;
 };
 
-// Factory class
-class CommandPrototypeFactory
+class ReceiverInterfaceFactory
 {
 public:
-    explicit CommandPrototypeFactory(GnssReceiver* receiver)
+    ReceiverInterfaceFactory()
     {
-        command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("enableDebugMode", std::make_shared<EnableDebugModeCommand>(receiver)));
-        command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("disableDebugMode", std::make_shared<DisableDebugModeCommand>(receiver)));
-        command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("injectLat", std::make_shared<InjectLatitudeCommand>(receiver)));
-        command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("injectLon", std::make_shared<InjectLongitudeCommand>(receiver)));
-        // Add more commands here as needed
+
     }
- 
-    std::shared_ptr<CommandPrototype> createCommand(const std::string& command)
+
+    ~ReceiverInterfaceFactory()
     {
-        auto it = command_list.find(command);
-        if (it != command_list.end() && it->second != nullptr)
+
+    }
+
+    ReceiverInterface* createInterface(int hardware_version)
+    {
+        ReceiverInterface* interface = nullptr;
+        switch (hardware_version)
         {
-            return it->second->clone();
+            case 0:
+            {
+                interface = new UARTInterface();
+                break;
+            }
+            case 1:
+            {
+                interface = new SOMEIPInterface();
+                break;
+            }
+            default:
+            {
+                interface = nullptr;
+                break;
+            }
         }
-        return nullptr;
+        return interface;
     }
- 
-private:
-    std::unordered_map<std::string, std::shared_ptr<CommandPrototype>> command_list;
 };
 
 // Implementation of GnssReceiver class
 GnssReceiver::GnssReceiver()
 {
-    cmdFactory = new CommandPrototypeFactory(this);
-    m_debugMode = false;
     m_data = {};
+    m_interface = nullptr;
+    m_factory = new ReceiverInterfaceFactory();
 }
 
 GnssReceiver::~GnssReceiver()
@@ -201,19 +138,26 @@ GnssReceiver::~GnssReceiver()
     
 }
 
-void GnssReceiver::enableDebugMode()
+bool GnssReceiver::initialize(int hardware_version)
 {
-    m_debugMode = true;
+    m_interface = m_factory->createInterface(hardware_version);
+    if (m_interface != nullptr)
+    {
+        return m_interface->Open();
+    }
+
+    return false;
 }
 
-void GnssReceiver::disableDebugMode()
+void GnssReceiver::readLocationData()
 {
-    m_debugMode = false;
-}
-
-bool GnssReceiver::getDebugMode()
-{
-    return m_debugMode;
+    if (m_interface != nullptr)
+    {
+        char buffer[1024];
+        std::memset(buffer, 0, 1024);
+        int32_t bytes = m_interface->Read(buffer);
+        std::cout << "Read " << bytes << " byte(s): " << buffer << std::endl;
+    }
 }
 
 LocationData& GnssReceiver::getLocationData()
@@ -226,41 +170,11 @@ void GnssReceiver::DEBUG()
     std::cout << m_data.timestamp << " " << m_data.lat << " " << m_data.lon << " " << m_data.alt << std::endl;
 }
 
-int GnssReceiver::processCommand(const std::string& command)
-{
-    // split string command to multiple tokens following the format:
-    // <command> <value1> <value2> ... <valueN>
-    std::istringstream iss(command);
-    std::vector<std::string> tokens(std::istream_iterator<std::string>{iss},
-                                    std::istream_iterator<std::string>());
-    if (tokens.empty())
-    {
-        std::cout << "Can not handle an empty command";
-        return -1;
-    }
-
-    std::shared_ptr<CommandPrototype> cmd = cmdFactory->createCommand(tokens[0]);
-    if (cmd != nullptr)
-    {
-        return cmd->execute(tokens);
-    }
-    else
-    {
-        std::cout << "Command " << tokens[0] << " is not found in the factory" << std::endl;
-    }
-
-    return -1;
-}
-
 int main()
 {
     GnssReceiver receiver;
-    receiver.DEBUG();
-    receiver.processCommand("enableDebugMode");
-    receiver.processCommand("injectLat 18");
-    receiver.processCommand("injectLon 106");
-    receiver.processCommand("disableDebugMode");
-    receiver.DEBUG();
-
+    receiver.initialize(0);
+    receiver.readLocationData();
+    
     return 0;
 }
