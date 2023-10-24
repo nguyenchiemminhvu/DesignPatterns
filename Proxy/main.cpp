@@ -75,6 +75,8 @@ public:
 	{
 		if (pService != nullptr)
 		{
+			// Can record access history before handle the request
+
 			pService->getLocationData(loc_data);
 		}
 	}
