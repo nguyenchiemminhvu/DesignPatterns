@@ -48,10 +48,10 @@ public:
     virtual ~CommandPrototype() = default;
 };
  
-class OpenBackdoorCommand : public CommandPrototype
+class EnableDebugModeCommand : public CommandPrototype
 {
 public:
-    explicit OpenBackdoorCommand(GnssReceiver* receiver)
+    explicit EnableDebugModeCommand(GnssReceiver* receiver)
         : CommandPrototype()
     {
         pReceiver = receiver;
@@ -59,7 +59,7 @@ public:
  
     virtual std::shared_ptr<CommandPrototype> clone() const override
     {
-        return std::make_shared<OpenBackdoorCommand>(*this);
+        return std::make_shared<EnableDebugModeCommand>(*this);
     }
 
     virtual int execute(const std::vector<std::string>& args) override
@@ -69,17 +69,17 @@ public:
             pReceiver->enableDebugMode();
         }
 
-        std::cout << "OpenBackdoorCommand executed" << std::endl;
+        std::cout << "EnableDebugModeCommand executed" << std::endl;
         return 0;
     }
 private:
     GnssReceiver* pReceiver;
 };
  
-class CloseBackdoorCommand : public CommandPrototype
+class DisableDebugModeCommand : public CommandPrototype
 {
 public:
-    explicit CloseBackdoorCommand(GnssReceiver* receiver)
+    explicit DisableDebugModeCommand(GnssReceiver* receiver)
         : CommandPrototype()
     {
         pReceiver = receiver;
@@ -87,7 +87,7 @@ public:
  
     virtual std::shared_ptr<CommandPrototype> clone() const override
     {
-        return std::make_shared<CloseBackdoorCommand>(*this);
+        return std::make_shared<DisableDebugModeCommand>(*this);
     }
 
     virtual int execute(const std::vector<std::string>& args) override
@@ -97,7 +97,7 @@ public:
             pReceiver->disableDebugMode();
         }
 
-        std::cout << "CloseBackdoorCommand executed" << std::endl;
+        std::cout << "DisableDebugModeCommand executed" << std::endl;
         return 0;
     }
 private:
@@ -167,8 +167,8 @@ class CommandPrototypeFactory
 public:
     explicit CommandPrototypeFactory(GnssReceiver* receiver)
     {
-        command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("enableDebugMode", std::make_shared<OpenBackdoorCommand>(receiver)));
-        command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("disableDebugMode", std::make_shared<CloseBackdoorCommand>(receiver)));
+        command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("enableDebugMode", std::make_shared<EnableDebugModeCommand>(receiver)));
+        command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("disableDebugMode", std::make_shared<DisableDebugModeCommand>(receiver)));
         command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("injectLat", std::make_shared<InjectLatitudeCommand>(receiver)));
         command_list.insert(std::make_pair<std::string, std::shared_ptr<CommandPrototype>>("injectLon", std::make_shared<InjectLongitudeCommand>(receiver)));
         // Add more commands here as needed
