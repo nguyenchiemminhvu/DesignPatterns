@@ -70,15 +70,15 @@ private:
     std::shared_ptr<LocationData> m_data;
 };
 
-class AbstractHandler
+class LocationHandler
 {
 public:
-    AbstractHandler()
+    LocationHandler()
         : next(nullptr)
     {
     }
 
-    virtual AbstractHandler* setNext(AbstractHandler* nextHandler)
+    virtual LocationHandler* setNext(LocationHandler* nextHandler)
     {
         next = nextHandler;
         return nextHandler;
@@ -93,10 +93,10 @@ public:
     }
 
 protected:
-    AbstractHandler* next;
+    LocationHandler* next;
 };
 
-class GnssLocationHandler : public AbstractHandler
+class GnssLocationHandler : public LocationHandler
 {
 public:
     GnssLocationHandler(std::shared_ptr<LocationManager> service)
@@ -111,14 +111,14 @@ public:
             pService->updateLocationData(data);
         }
 
-        AbstractHandler::handle(data);
+        LocationHandler::handle(data);
     }
 
 private:
     std::shared_ptr<LocationManager> pService;
 };
 
-class DeadReckoningHandler : public AbstractHandler
+class DeadReckoningHandler : public LocationHandler
 {
 public:
     DeadReckoningHandler(std::shared_ptr<LocationManager> service)
@@ -134,7 +134,7 @@ public:
             pService->updateLocationData(data);     
         }
 
-        AbstractHandler::handle(data);
+        LocationHandler::handle(data);
     }
 
 private:
@@ -145,10 +145,10 @@ private:
 int main()
 {
     LocationManager* mainService = new LocationManager();
-
+    LocationHandler* mainHandler = new LocationHandler();
     GnssLocationHandler* gnssHandler = new GnssLocationHandler(std::shared_ptr<LocationManager>(mainService));
     DeadReckoningHandler* drHandler = new DeadReckoningHandler(std::shared_ptr<LocationManager>(mainService));
-    gnssHandler->setNext(drHandler)->setNext(nullptr);
+    mainHandler->setNext(gnssHandler)->setNext(drHandler)->setNext(nullptr);
 
     std::shared_ptr<LocationData> test_data = std::make_shared<LocationData>();
 
@@ -156,13 +156,13 @@ int main()
     test_data->lat = 18;
     test_data->lon = 106;
     test_data->alt = 0;
-    gnssHandler->handle(test_data);
+    mainHandler->handle(test_data);
 
     test_data->fixType = 1;
     test_data->lat = 18;
     test_data->lon = 106;
     test_data->alt = 0;
-    gnssHandler->handle(test_data);
+    mainHandler->handle(test_data);
 
     return 0;
 }
