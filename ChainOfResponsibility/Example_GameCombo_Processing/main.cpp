@@ -75,15 +75,6 @@ public:
 
     virtual void handleCombo(char key)
     {
-        if (SkillManager::comboID != comboID)
-        {
-            if (nextHandler != nullptr)
-            {
-                nextHandler->handleCombo(key);
-            }
-            return;
-        }
-
         if (currentIndex >= combo.size())
         {
             currentIndex = 0;  // Reset the index if it's out of range
@@ -91,6 +82,7 @@ public:
 
         if (key == combo[currentIndex].key && combo[currentIndex].precondition())
         {
+            SkillManager::comboID = comboID;
             combo[currentIndex].action();  // Execute the corresponding skill/action
             currentIndex++;
             if (currentIndex == combo.size())
@@ -101,6 +93,7 @@ public:
         }
         else
         {
+            SkillManager::comboID = SkillManager::ComboID::UNKNOWN;
             currentIndex = 0;  // Reset the index if there's no match
         }
 
@@ -147,7 +140,7 @@ public:
 int main()
 {
     // Set the combo ID in the SkillManager
-    SkillManager::comboID = SkillManager::HOLD_AND_ATTACK;
+    SkillManager::comboID = SkillManager::UNKNOWN;
 
     // Create the combo handlers
     ComboHandler* combo1 = new ComboAttack1Handler();
@@ -158,6 +151,12 @@ int main()
 
     // Simulate key presses
     std::vector<char> keyPresses = {'Z', 'X', 'X', 'Z', 'X'};
+    for (char key : keyPresses)
+    {
+        combo1->handleCombo(key);
+    }
+
+    keyPresses = {'X', 'Z', 'X', 'Z', 'X'};
     for (char key : keyPresses)
     {
         combo1->handleCombo(key);
